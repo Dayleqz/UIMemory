@@ -7,8 +7,10 @@ using System.Diagnostics;
 
 namespace UIMemory
 {
+
     public class Memory
     {
+
         private readonly IntPtr UIHandle;      
 
         public Memory(string UIProcessName)
@@ -175,5 +177,7 @@ namespace UIMemory
 
             internal unsafe delegate void* GetUnsafePtrDelegate(ref T value);
         }
+
     }
+
 }

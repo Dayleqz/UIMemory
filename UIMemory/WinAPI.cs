@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace UIMemory
 {
+
     class WinAPI
     {
+
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint dwSize, uint lpNumberOfBytesRead);
 
@@ -23,5 +25,7 @@ namespace UIMemory
 
         [DllImport("kernel32.dll")]
         public static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+
     }
+
 }
