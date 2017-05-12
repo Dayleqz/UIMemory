@@ -28,10 +28,10 @@ namespace UIMemory
             {
                 uint UIOldProtect;
                 WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)UISize, 4U, out UIOldProtect);
-                byte[] lpBuffer = new byte[(int)(IntPtr)UISize];
-                WinAPI.ReadProcessMemory(UIHandle, UIOffset, lpBuffer, UISize, 0U);
+                byte[] UIBuffer = new byte[(int)(IntPtr)UISize];
+                WinAPI.ReadProcessMemory(UIHandle, UIOffset, UIBuffer, UISize, 0U);
                 WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)UISize, UIOldProtect, out UIOldProtect);
-                return lpBuffer;
+                return UIBuffer;
             }
             catch
             {
@@ -46,9 +46,9 @@ namespace UIMemory
             {
                 uint UIOldProtect;
                 WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)((ulong)UIBytes.Length), 4U, out UIOldProtect);
-                bool flag = WinAPI.WriteProcessMemory(UIHandle, UIOffset, UIBytes, (uint)UIBytes.Length, 0U);
+                bool UIFlag = WinAPI.WriteProcessMemory(UIHandle, UIOffset, UIBytes, (uint)UIBytes.Length, 0U);
                 WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)((ulong)UIBytes.Length), UIOldProtect, out UIOldProtect);
-                return flag;
+                return UIFlag;
             }
             catch
             {
@@ -59,14 +59,14 @@ namespace UIMemory
         /// Читает из процесса значение по определенному адресу
         /// </summary>
         /// <typeparam name="T">тип значения, которое надо прочитать</typeparam>
-        /// <param name="address">адрес для чтения</param>
+        /// <param name="UIAdress">адрес для чтения</param>
         /// <returns></returns>
-        public unsafe T UIRead<T>(int address)
+        public unsafe T UIRead<T>(int UIAdress)
         {
-            var size = MarshalCache<T>.UISize;
-            var buffer = UIReadBytes((IntPtr)address, (uint)size);
+            var UISize = UIMarshalCache<T>.UISize;
+            var UIBuffer = UIReadBytes((IntPtr)UIAdress, (uint)UISize);
 
-            fixed (byte* b = buffer)
+            fixed (byte* b = UIBuffer)
                 return Marshal.PtrToStructure<T>((IntPtr)b);
         }
 
@@ -74,35 +74,35 @@ namespace UIMemory
         /// Читает массив данный из определенного адреса
         /// </summary>
         /// <typeparam name="T">тип данных</typeparam>
-        /// <param name="address">адрес для чтения</param>
-        /// <param name="count">кол-во элементов данных</param>
+        /// <param name="UIAdress">адрес для чтения</param>
+        /// <param name="UICount">кол-во элементов данных</param>
         /// <returns></returns>
-        public T[] Read<T>(int address, int count)
+        public T[] Read<T>(int UIAdress, int UICount)
         {
-            var size = MarshalCache<T>.UISize;
+            var UISize = UIMarshalCache<T>.UISize;
 
-            var ret = new T[count];
-            for (var i = 0; i < count; i++)
-                ret[i] = UIRead<T>(address + (i * size));
+            var UIRet = new T[UICount];
+            for (var UINT = 0; UINT < UICount; UINT++)
+                UIRet[UINT] = UIRead<T>(UIAdress + (UINT * UISize));
 
-            return ret;
+            return UIRet;
         }
 
         /// <summary>
         /// Записывает в память значение по определенному адресу
         /// </summary>
         /// <typeparam name="T">тип значения (необязательно)</typeparam>
-        /// <param name="address">адрес для записи</param>
-        /// <param name="value">само значение</param>
-        public unsafe void UIWrite<T>(int address, T value)
+        /// <param name="UIAdress">адрес для записи</param>
+        /// <param name="UIValue">само значение</param>
+        public unsafe void UIWrite<T>(int UIAdress, T UIValue)
         {
-            var size = MarshalCache<T>.UISize;
-            var buffer = new byte[size];
+            var UISize = UIMarshalCache<T>.UISize;
+            var UIBuffer = new byte[UISize];
 
-            fixed (byte* b = buffer)
-                Marshal.StructureToPtr(value, (IntPtr)b, true);
+            fixed (byte* UIByte = UIBuffer)
+                Marshal.StructureToPtr(UIValue, (IntPtr)UIByte, true);
 
-            UIWriteBytes((IntPtr)address, buffer);
+            UIWriteBytes((IntPtr)UIAdress, UIBuffer);
         }
 
         private enum VirtualMemoryProtection : uint
@@ -126,7 +126,7 @@ namespace UIMemory
                 throw new NullReferenceException();
         }
 
-        static class MarshalCache<T>
+        static class UIMarshalCache<T>
         {
             public static readonly int UISize;
 
@@ -135,11 +135,11 @@ namespace UIMemory
             public static TypeCode UITypeCode;
 
 
-            public static bool TypeRequiresMarshal;
+            public static bool UITypeRequiresMarshal;
 
-            internal static readonly GetUnsafePtrDelegate GetUnsafePtr;
+            internal static readonly GetUnsafePtrDelegate UIGetUnsafePtr;
 
-            static MarshalCache()
+            static UIMarshalCache()
             {
                 UITypeCode = Type.GetTypeCode(typeof(T));
 
@@ -150,10 +150,10 @@ namespace UIMemory
                 }
                 else if (typeof(T).IsEnum)
                 {
-                    var underlying = typeof(T).GetEnumUnderlyingType();
-                    UISize = Marshal.SizeOf(underlying);
-                    UIRealType = underlying;
-                    UITypeCode = Type.GetTypeCode(underlying);
+                    var UIUnderLiyng = typeof(T).GetEnumUnderlyingType();
+                    UISize = Marshal.SizeOf(UIUnderLiyng);
+                    UIRealType = UIUnderLiyng;
+                    UITypeCode = Type.GetTypeCode(UIUnderLiyng);
                 }
                 else
                 {
@@ -161,21 +161,20 @@ namespace UIMemory
                     UIRealType = typeof(T);
                 }
 
-                TypeRequiresMarshal =
-                    UIRealType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                        .Any(m => m.GetCustomAttributes(typeof(MarshalAsAttribute), true).Any());
-                var method = new DynamicMethod(
-                    string.Format("GetPinnedPtr<{0}>", typeof(T).FullName.Replace(".", "<>")), typeof(void*),
-                    new[] { typeof(T).MakeByRefType() },
-                    typeof(MarshalCache<>).Module);
-                var generator = method.GetILGenerator();
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Conv_U);
-                generator.Emit(OpCodes.Ret);
-                GetUnsafePtr = (GetUnsafePtrDelegate)method.CreateDelegate(typeof(GetUnsafePtrDelegate));
+                UITypeRequiresMarshal = UIRealType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Any(m => m.GetCustomAttributes(typeof(MarshalAsAttribute), true).Any());
+                var method = new DynamicMethod(string.Format("GetPinnedPtr<{0}>", typeof(T).FullName.Replace(".", "<>")), typeof(void*), new[]
+                {
+                    typeof(T).MakeByRefType()
+                },
+                    typeof(UIMarshalCache<>).Module);
+                var UIGenerator = method.GetILGenerator();
+                UIGenerator.Emit(OpCodes.Ldarg_0);
+                UIGenerator.Emit(OpCodes.Conv_U);
+                UIGenerator.Emit(OpCodes.Ret);
+                UIGetUnsafePtr = (GetUnsafePtrDelegate)method.CreateDelegate(typeof(GetUnsafePtrDelegate));
             }
 
-            internal unsafe delegate void* GetUnsafePtrDelegate(ref T value);
+            internal unsafe delegate void* GetUnsafePtrDelegate(ref T UIValue);
         }
 
     }
