@@ -7,7 +7,6 @@ using System.Diagnostics;
 
 namespace UIMemory
 {
-
     public class Memory
     {
 
@@ -178,5 +177,4 @@ namespace UIMemory
         }
 
     }
-
 }
