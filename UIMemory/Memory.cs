@@ -20,15 +20,15 @@ namespace UIMemory
                 throw new NullReferenceException();
         }
 
-        private byte[] UIReadBytes(IntPtr pOffset, uint pSize)
+        private byte[] UIReadBytes(IntPtr UIOffset, uint UISize)
         {
             try
             {
-                uint lpflOldProtect;
-                WinAPI.VirtualProtectEx(UIHandle, pOffset, (UIntPtr)pSize, 4U, out lpflOldProtect);
-                byte[] lpBuffer = new byte[(int)(IntPtr)pSize];
-                WinAPI.ReadProcessMemory(UIHandle, pOffset, lpBuffer, pSize, 0U);
-                WinAPI.VirtualProtectEx(UIHandle, pOffset, (UIntPtr)pSize, lpflOldProtect, out lpflOldProtect);
+                uint UIOldProtect;
+                WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)UISize, 4U, out UIOldProtect);
+                byte[] lpBuffer = new byte[(int)(IntPtr)UISize];
+                WinAPI.ReadProcessMemory(UIHandle, UIOffset, lpBuffer, UISize, 0U);
+                WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)UISize, UIOldProtect, out UIOldProtect);
                 return lpBuffer;
             }
             catch
@@ -37,15 +37,15 @@ namespace UIMemory
             }
         }
 
-        private bool UIWriteBytes(IntPtr pOffset, byte[] pBytes)
+        private bool UIWriteBytes(IntPtr UIOffset, byte[] UIBytes)
         {
 
             try
             {
-                uint lpflOldProtect;
-                WinAPI.VirtualProtectEx(UIHandle, pOffset, (UIntPtr)((ulong)pBytes.Length), 4U, out lpflOldProtect);
-                bool flag = WinAPI.WriteProcessMemory(UIHandle, pOffset, pBytes, (uint)pBytes.Length, 0U);
-                WinAPI.VirtualProtectEx(UIHandle, pOffset, (UIntPtr)((ulong)pBytes.Length), lpflOldProtect, out lpflOldProtect);
+                uint UIOldProtect;
+                WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)((ulong)UIBytes.Length), 4U, out UIOldProtect);
+                bool flag = WinAPI.WriteProcessMemory(UIHandle, UIOffset, UIBytes, (uint)UIBytes.Length, 0U);
+                WinAPI.VirtualProtectEx(UIHandle, UIOffset, (UIntPtr)((ulong)UIBytes.Length), UIOldProtect, out UIOldProtect);
                 return flag;
             }
             catch
