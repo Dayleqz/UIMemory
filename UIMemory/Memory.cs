@@ -9,7 +9,6 @@ namespace UIMemory
 {
     public class Memory
     {
-
         private readonly IntPtr UIHandle;      
 
         public Memory(string UIProcessName)
@@ -133,7 +132,6 @@ namespace UIMemory
 
             public static TypeCode UITypeCode;
 
-
             public static bool UITypeRequiresMarshal;
 
             internal static readonly GetUnsafePtrDelegate UIGetUnsafePtr;
@@ -172,9 +170,7 @@ namespace UIMemory
                 UIGenerator.Emit(OpCodes.Ret);
                 UIGetUnsafePtr = (GetUnsafePtrDelegate)method.CreateDelegate(typeof(GetUnsafePtrDelegate));
             }
-
             internal unsafe delegate void* GetUnsafePtrDelegate(ref T UIValue);
         }
-
     }
 }
