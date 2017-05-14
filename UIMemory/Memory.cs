@@ -9,19 +9,21 @@ namespace UIMemory
 {
     public class Memory
     {
-        private readonly IntPtr UIHandle;      
-
+        private readonly IntPtr UIHandle;
         public Memory(string UIProcessName)
         {
+
             string UIName = UIProcessName;
             Process UIMain = Process.GetProcessesByName(UIName)[0];
             UIHandle = WinAPI.OpenProcess((uint)VirtualMemoryProtection.PROCESS_ALL_ACCESS, false, UIMain.Id);
             if (UIHandle == IntPtr.Zero)
                 throw new NullReferenceException();
+
         }
 
         private byte[] UIReadBytes(IntPtr UIOffset, uint UISize)
         {
+
             try
             {
                 uint UIOldProtect;
@@ -35,6 +37,7 @@ namespace UIMemory
             {
                 return new byte[1];
             }
+
         }
 
         private bool UIWriteBytes(IntPtr UIOffset, byte[] UIBytes)
@@ -52,6 +55,7 @@ namespace UIMemory
             {
                 return false;
             }
+
         }
         /// <summary>
         /// Читает из процесса значение по определенному адресу
@@ -61,11 +65,13 @@ namespace UIMemory
         /// <returns></returns>
         public unsafe T UIRead<T>(int UIAdress)
         {
+
             var UISize = UIMarshalCache<T>.UISize;
             var UIBuffer = UIReadBytes((IntPtr)UIAdress, (uint)UISize);
 
             fixed (byte* b = UIBuffer)
                 return Marshal.PtrToStructure<T>((IntPtr)b);
+
         }
 
         /// <summary>
@@ -77,6 +83,7 @@ namespace UIMemory
         /// <returns></returns>
         public T[] Read<T>(int UIAdress, int UICount)
         {
+
             var UISize = UIMarshalCache<T>.UISize;
 
             var UIRet = new T[UICount];
@@ -84,6 +91,7 @@ namespace UIMemory
                 UIRet[UINT] = UIRead<T>(UIAdress + (UINT * UISize));
 
             return UIRet;
+
         }
 
         /// <summary>
@@ -94,6 +102,7 @@ namespace UIMemory
         /// <param name="UIValue">само значение</param>
         public unsafe void UIWrite<T>(int UIAdress, T UIValue)
         {
+
             var UISize = UIMarshalCache<T>.UISize;
             var UIBuffer = new byte[UISize];
 
@@ -101,10 +110,12 @@ namespace UIMemory
                 Marshal.StructureToPtr(UIValue, (IntPtr)UIByte, true);
 
             UIWriteBytes((IntPtr)UIAdress, UIBuffer);
+
         }
 
         private enum VirtualMemoryProtection : uint
         {
+
             PAGE_NOACCESS = 1,
             PAGE_READONLY = 2,
             PAGE_READWRITE = 4,
@@ -116,16 +127,20 @@ namespace UIMemory
             PAGE_GUARD = 256,
             PAGE_NOCACHE = 512,
             PROCESS_ALL_ACCESS = 2035711,
+
         }
 
         public void UIDispose()
         {
+
             if (!WinAPI.CloseHandle(UIHandle))
                 throw new NullReferenceException();
+
         }
 
         static class UIMarshalCache<T>
         {
+
             public static readonly int UISize;
 
             public static readonly Type UIRealType;
@@ -169,8 +184,11 @@ namespace UIMemory
                 UIGenerator.Emit(OpCodes.Conv_U);
                 UIGenerator.Emit(OpCodes.Ret);
                 UIGetUnsafePtr = (GetUnsafePtrDelegate)method.CreateDelegate(typeof(GetUnsafePtrDelegate));
+
             }
+
             internal unsafe delegate void* GetUnsafePtrDelegate(ref T UIValue);
+
         }
     }
 }
