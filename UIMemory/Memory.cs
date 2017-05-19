@@ -81,7 +81,7 @@ namespace UIMemory
         /// <param name="UIAdress">адрес для чтения</param>
         /// <param name="UICount">кол-во элементов данных</param>
         /// <returns></returns>
-        public T[] Read<T>(int UIAdress, int UICount)
+        public T[] UIRead<T>(int UIAdress, int UICount)
         {
 
             var UISize = UIMarshalCache<T>.UISize;
